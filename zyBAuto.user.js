@@ -36,24 +36,14 @@ var autoRun = false;
 function zBAStartButton (zEvent) {
     console.log(timeString() + " [zBA] Running...");
     run();
+	click_fill_in_blank();
 }
 
 function run() {
-    //click_speeds();
     click_plays();
     click_starts();
+	click_mcq();
     setTimeout(function(){ run(); }, 1000);
-}
-
-function click_speeds() { // Checks speed boxes. Doesn't work but isn't a necessary feature.
-    var speed = document.getElementsByClassName("speed-control");
-    for (var i = 0; i < speed.length; i++) {
-        if ((speed[i].innerHTML).includes("false")) {
-            //speed[i].click();
-            speed[i].getElementsByClassName("zb-checkbox")[0].innerHTML = "\n<input type=\"checkbox\" value=\"true\" aria-label=\"2x speed\">\n<label aria-hidden=\"true\">2x speed</label>\n"
-            console.log(timeString() + " Checked a speed box.");
-        }
-    }
 }
 
 function click_plays() { // Clicks all Play buttons
@@ -71,6 +61,70 @@ function click_starts() { // Clicks all Start buttons
     for (var i = 0; i < starts.length; i++) {
         starts[i].click();
         console.log(timeString() + " Clicked a start button.");
+    }
+}
+
+function click_mcq() {
+	var questions = document.getElementsByClassName("question-choices");
+	
+	for (var i = 0; i < questions.length; i++) {
+		var question = questions[i];
+		
+		if (question.parentElement.parentElement.children[2].children[0].ariaLabel == "Question not completed") {
+			var children = question.children;
+			
+			children[Math.floor(Math.random() * children.length)].children[0].click();
+		}
+	}
+}
+
+function click_fill_in_blank() {
+	var titles = document.getElementsByClassName("title");
+
+    for (var i = 0; i < titles.length; i++) {
+        var title = titles[i];
+
+        if (title.innerText == "Show answer") {
+            title.click();
+			title.click();
+			console.log(title);
+			
+			try {
+				var textBox = title.parentElement.parentElement.parentElement.children[0].children[0].children[0];
+			} catch (error) { continue;}
+			try {
+				var answer = title.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.children[1].children[1].children[0].innerText;
+			} catch (error) { continue;}
+			textBox.value = answer;
+			
+			
+            // Trigger input event (for line break)
+            const inputEvent = new InputEvent('input', {
+                bubbles: true,
+                cancelable: false,
+                composed: true,
+                inputType: 'insertLineBreak',
+                isComposing: false,
+                data: null
+            });
+            textBox.dispatchEvent(inputEvent);
+            
+            // Trigger change event
+            const changeEvent = new Event('change', {
+                bubbles: true,
+                cancelable: true
+            });
+            textBox.dispatchEvent(changeEvent);
+            
+            // Trigger keyup event
+            const keyupEvent = new KeyboardEvent('keyup', {
+                bubbles: true,
+                cancelable: true,
+                key: 'Enter',
+                code: 'Enter'
+            });
+            textBox.dispatchEvent(keyupEvent);
+		}
     }
 }
 
